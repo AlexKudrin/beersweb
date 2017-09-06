@@ -1,0 +1,64 @@
+﻿@model List<beersweb.Models.BeersItem.BeerItem>
+
+<table class="table table-hover" id="list">
+    <thead>
+    <th></th>
+    <th>@Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm })</th>
+    <th>@Html.ActionLink("Description", "Index", new { sortOrder = ViewBag.DescriptionSortParm })</th>
+    <th>@Html.ActionLink("Organic", "Index", new { sortOrder = ViewBag.OrganicSortParm })</th>
+    <th>@Html.ActionLink("ABV", "Index", new { sortOrder = ViewBag.ABVSortParm })</th>
+    <th>@Html.ActionLink("IBU", "Index", new { sortOrder = ViewBag.IBUSortParm })</th>
+    <th>@Html.ActionLink("Date added", "Index", new { sortOrder = ViewBag.DateSortParm })</th>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr data-id="@item.id">
+                <td>
+                    @if (item.labels != null)
+                    {
+                        <img class="rowImage" src="@item.labels.icon">
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)<br />
+                </td>
+                <td>
+                    @if ((!String.IsNullOrEmpty(item.description)) && (item.description.Length > 100))
+                    {
+                        @item.description.Substring(0, 100);
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.description);
+                    }
+
+                    <br />
+                </td>
+                <td>
+                    @if (item.isOrganic == "Y")
+                    {
+                        <span class='glyphicon glyphicon-ok-sign' style='color:green'></span>
+                    }
+                    else
+                    {
+                        <span class='glyphicon glyphicon-remove-sign' style='color:red'></span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.abv)%<br />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ibu)<br />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.createDate)<br />
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+

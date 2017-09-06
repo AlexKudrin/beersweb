@@ -1,0 +1,71 @@
+﻿@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    font-weight: 500;
+	font: 400 20px/1.5 'Source Sans Pro',Open Sans,Roboto,'San Francisco',Helvetica,Arial,sans-serif;
+    background-color: #d5dbdb !important; 
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px; 
+    background-color: #F1F1F1 !important;
+    width: 100% !important;
+}
+
+@media all and (min-width:1200px) {
+    .container {
+        width: 100% !important;
+    }
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+
+.pageInput{
+    width: 50px;
+    text-align:center;
+   
+    -moz-border-radius:10px; /* Firefox */
+    -webkit-border-radius: 10px; /* Safari, Chrome */
+    -khtml-border-radius: 10px; /* KHTML */
+    border-radius: 10px; /* CSS3 */
+}
+
+
+
+body.modal-open .modal .modal-dialog {
+    margin: auto;
+}
+
+.modal-dialog{
+    left: 0% !important;
+}
+
+.rowImage{
+    width: 96px;
+    height: 96px;
+}
+
+table tbody tr:hover
+{
+    cursor: pointer;
+}
+
+table tbody tr
+{
+    background-color: #F1F1F1;
+}
+
+
+.glyphicon
+{
+    font-size: 2em;
+}

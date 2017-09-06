@@ -1,0 +1,186 @@
+﻿@model beersweb.Models.Beer
+
+@{
+    ViewBag.Title = "Home Page";
+}
+<div class="container">
+    <br />
+
+    <div class="alert alert-info">
+        <h2>The website displays a list of beers, that provides <a href="http://www.brewerydb.com/developers">brewerydb api</a>. Click on the row to find out more about beer.</h2>
+    </div>  
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Get))
+    {
+        <div class="input-group col-md-12">
+            <div class="col-md-11">
+                @if (!String.IsNullOrEmpty(Request.QueryString["name"]))
+                { 
+                    <input type="text" name="name" id="name" value="@Request.QueryString["name"]" class="search-query form-control" />
+                }
+                else
+                {
+                    <input type="text" name="name" id="name" placeholder=" Search by name" class="search-query form-control" />
+                }
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-info" type="submit">
+                    <span class=" glyphicon glyphicon-search"></span>
+                </button>
+            </div>
+
+        </div>
+    }
+
+    <br />
+
+    <a id="openFilter" onclick="openFilter()" href="#">Close filter</a>
+
+    <div id="filter">
+              <div class="input-group col-md-12">
+                @if (Request.QueryString["organic"] == "true")
+                {
+                    <input type="checkbox" name="organic" id="organic" checked />
+                }
+                else
+                {
+                    <input type="checkbox" name="organic" id="organic" />
+                }
+                Organic
+
+                @if (Request.QueryString["labels"] == "true")
+                {
+                    <input type="checkbox" name="labels" id="labels" checked>
+                }
+                else
+                {
+                    <input type="checkbox" name="labels" id="labels">
+                }
+                Only with images
+
+                <button class="btn btn-info" id="filterButton">Filter</button>
+            </div>             
+    </div>
+
+    <br />
+
+    @if (Model.data != null)
+    {
+        @Html.Partial("_beersTable", Model.data);
+    }
+    else
+    {
+        <h1>No data found</h1>
+    }
+
+    <ul class="pager">
+        <li class="previous">@Html.ActionLink("Previous", "Index", "Home", new { page = Model.currentPage - 1, name = Request.QueryString["name"],
+                            sortOrder = Request.QueryString["sortOrder"], labels = Request.QueryString["labels"], organic = Request.QueryString["organic"]}, null)</li>
+        <li style="position: center">page <input id="page" value="@Model.currentPage" class="pageInput"/> of @Model.numberOfPages</li>
+        <li class="next">@Html.ActionLink("Next", "Index", "Home", new { page = Model.currentPage + 1,  name = Request.QueryString["name"],
+                            sortOrder = Request.QueryString["sortOrder"], labels = Request.QueryString["labels"], organic = Request.QueryString["organic"]}, null)</li>
+    </ul> 
+
+</div>
+
+<script>
+    //https://stackoverflow.com/questions/1403888/get-escaped-url-parameter
+    function getURLParameter(name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || ['', ''])[1].replace(/\+/g, '%20')) || '';
+    }
+
+    function getBasicParameters() {
+        var sortOrder = getURLParameter("sortOrder");
+        var labels = $('#labels').prop('checked');
+        var organic = $('#organic').prop('checked');
+        return "&sortOrder=" + sortOrder + "&labels=" + labels + "&organic=" + organic;
+    }
+
+    document.getElementById('page').onchange = function (e) {
+
+        var name = getURLParameter("name");
+        var page = document.getElementById("page").value;
+
+        var url = '@Url.Action("Index", "Home")';
+        url = url + "?page=" + page + getBasicParameters() + "&name=" + name;
+        window.location.href = url;
+    }
+
+    document.getElementById('name').onchange = function (e) {
+
+        var name = document.getElementById("name").value;
+
+        var url = '@Url.Action("Index", "Home")';
+        url = url + "?name=" + name + getBasicParameters();
+        window.location.href = url;
+    }
+
+    $("#filterButton").click(function () {
+
+        var page = document.getElementById("page").value;
+        var url = '@Url.Action("Index", "Home")';
+        var name= getURLParameter("name");    
+
+        url = url + "?page=" + page + getBasicParameters() + "&name="+name;
+        window.location.href = url;
+    })
+    
+    $("table tbody tr").click(function () {
+
+        var beerId = $(this).data("id");
+            
+        $.ajax({
+            url: "@Url.Action("getModel", "Home")",
+            data: {id: beerId},
+            type: "get",
+            dataType: 'json',
+            cache: false,
+            success: function (returnValue) {
+
+                var name = returnValue.nameDisplay;
+                var image = "<div style='text-align: center'><img src='" + returnValue.labels.medium + "' align='middle' /></div>";
+                var temp = returnValue.isOrganic;
+
+                if (temp == "N")
+                    temp =  "<span class='glyphicon glyphicon-remove-sign' style='color:red'></span>";
+                else
+                    temp = "<span class='glyphicon glyphicon-ok-sign' style='color:green'></span>";     
+
+                var message = image + "<hr>" + returnValue.description + "<hr> Is organic : " + temp + "<br/> ABV : " 
+                    + returnValue.abv + "%<br/> IBU : " + returnValue.ibu + "<br/> Year : " + returnValue.year + "<br/> Status : " + returnValue.statusDisplay;
+
+                BootstrapDialog.show({
+                    message: message,
+                    title: "<h2>" + name + "</h2>",
+                    buttons: [{
+                        label: 'Close',
+                        action: function (dialogItself) {
+                            dialogItself.close();
+                        }
+                    }]
+                });
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                BootstrapDialog.alert({
+                    message: 'cannot get model',
+                    closable: true
+                });
+            },
+           
+        });
+
+    });
+
+    function openFilter() {
+        var x = document.getElementById('filter');
+        if (x.style.display === 'none') {
+            x.style.display = 'block';
+            $("#openFilter").text("Close filter");
+        } else {
+            x.style.display = 'none';
+            $("#openFilter").text("Open filter");
+        }
+    }
+
+</script>
